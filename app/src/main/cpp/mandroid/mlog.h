@@ -6,7 +6,7 @@
 #define DEXAPPLICATION_MLOG_H
 
 #include <android/log.h>
-#define TAG "mmdalvik"
+#define TAG "CHANGECODE"
 #define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG ,__VA_ARGS__) // 定义LOGD类型
 #define ALOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG ,__VA_ARGS__) // 定义LOGI类型
 #define ALOGW(...) __android_log_print(ANDROID_LOG_WARN,TAG ,__VA_ARGS__) // 定义LOGW类型

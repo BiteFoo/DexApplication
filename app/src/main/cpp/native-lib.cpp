@@ -1,18 +1,17 @@
 #include <jni.h>
 #include <string>
-
 #include "mlog.h"
-#include "commUtils.h"
-///*******************
-
-//
-// Created by John.Lu on 2017/9/26.
-//
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/mman.h>
-#define TAG    "selfmodify"
+#include <vm/Dalvik.h>
+#include <MDalvik.h>
+
+#define TAG    "mmdalvik"
 #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,TAG,__VA_ARGS__)
+
+// Created by John.Lu on 2017/9/26.
+//
 int readUleb128(int *address, int read_count)
 {
     int *read_address;
@@ -417,6 +416,7 @@ jint changeCode (JNIEnv *env, jobject thisObj) {
          ALOGE("not found CodeItem address ");
          return -1;
      }
+
     void *code_insns_address;
     code_insns_address = (void *) (codeItem_address + 16);
     ALOGE("code_insns_address = %x", code_insns_address);
@@ -426,41 +426,47 @@ jint changeCode (JNIEnv *env, jobject thisObj) {
         LOGD("code insns page address is NULL ");
         return -1;
     }
+
     mprotect(codeinsns_page_address, page_size, 3);
     char inject[] = {0x90, 0x00, 0x02, 0x03, 0x0f, 0x00};
-    char ins[] = {0x12, 0x20,0x0f ,0x00};
-    memcpy(code_insns_address, &ins, 4);
 
+    char ins[] = {0x12, 0x20,0x0f ,0x00}; //ret2()
+    memcpy(code_insns_address, &ins, 4);
     return 0;
 }
-
-
-
 
 //******************
 
 
-
-
 /**
+ * 使用java传递方法体的方式，更改运行时的insns指令
+ *
  * 在这里更改方法
  * FromReflectedMethod
  * */
 char ins[] ={0x12, 0x20,0x0f ,0x00 };
-//void chgMethod(JNIEnv* env ,jobject method){
-//
-//    /*         12 10 0f 00  --> ret1
-//     *  12 20 0f 00 --> ret2   
-//     * */
-//    ALOGE(" chgMethod .... call ");
-//    Method* me = (Method*)  env->FromReflectedMethod(method);
-//    ALOGE(" chgMethod .... call  %d ",me->insns);
-//    ALOGE(" chgMethod .... call  %s",me->name);
-//    me->insns = (const u2*) ins;
-//    ALOGE(" chgMethod 22.... call  %d ",me->insns);
-//    ALOGE(" chgMethod22 .... call  %s",me->name);
-//
-//}
+void chgMethod(JNIEnv* env ,jobject method){
+
+    /*         12 10 0f 00  --> ret1
+     *  12 20 0f 00 --> ret2   
+     * */
+
+    ALOGE(" chgMethod .... call ");
+    Method* me = (Method*)  env->FromReflectedMethod(method);
+    ALOGE(" chgMethod .... call insns = %d , name = %s , code = %x",me->insSize ,me->name  ,me->insns);
+    me->insns = (const u2*) ins;
+}
+
+/**
+ *
+ * 还没完成，暂时先不用。
+ * */
+
+void chamMethodByDalvik(){
+    const char* module ="/data/dalvik-cache/data@app@com.dexapplication";
+    call_changeCode(module);
+}
+
 
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -468,7 +474,8 @@ Java_com_dexapplication_MainActivity_stringFromJNI(
         JNIEnv *env,
         jobject  thiz /* this */,jobject method) {
     std::string hello = "Hello from C++ ,ready to change ";
-    ALOGE(" return  .... call ");
-    changeCode(env,thiz);
+    ALOGE(" native  .... call ");
+    chgMethod(env,method);
+//    chamMethodByDalvik();
     return env->NewStringUTF(hello.c_str());
 }

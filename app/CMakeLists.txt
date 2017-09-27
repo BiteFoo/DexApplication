@@ -18,9 +18,47 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
 
-             src/main/cpp/native-lib.cpp )
+             #change code
+             #src/main/cpp/mandroid/CommUtils.cpp
+             #src/main/cpp/mandroid/myjni.cpp
+
+             #**********change code by method
+             src/main/cpp/native-lib.cpp
+             src/main/cpp/mandroid/MDalvik.cpp
+
+             #*********change code by DexFile
+             #src/main/cpp/Android/libdex/DexFile.cpp
+             #src/main/cpp/Android/libdex/CmdUtils.cpp
+             #src/main/cpp/Android/libdex/DexCatch.cpp
+             #src/main/cpp/Android/libdex/DexClass.cpp
+             # src/main/cpp/Android/libdex/DexDataMap.cpp
+               #src/main/cpp/Android/libdex/DexDebugInfo.cpp
+             # src/main/cpp/Android/libdex/DexInlines.cpp
+              # src/main/cpp/Android/libdex/DexOpcodes.cpp
+              # src/main/cpp/Android/libdex/DexOptData.cpp
+             #  src/main/cpp/Android/libdex/DexProto.cpp
+              # src/main/cpp/Android/libdex/DexSwapVerify.cpp
+             #  src/main/cpp/Android/libdex/DexUtf.cpp
+             #  src/main/cpp/Android/libdex/InstrUtils.cpp
+            #   src/main/cpp/Android/libdex/Leb128.cpp
+             #  src/main/cpp/Android/libdex/OptInvocation.cpp
+            #   src/main/cpp/Android/libdex/sha1.cpp
+            #   src/main/cpp/Android/libdex/SysUtil.cpp
+             #  src/main/cpp/Android/libdex/ZipArchive.cpp
+               #****************************
+            #   src/main/cpp/Android/vm/oo/Class.cpp
+            #   src/main/cpp/Android/vm/oo/Object.cpp
+             #  src/main/cpp/Android/vm/oo/Resolve.cpp
+               #********************
+             #   src/main/cpp/Android/vm/DvmDex.cpp
+             #    src/main/cpp/Android/vm/LinearAlloc.cpp
+             #    src/main/cpp/Android/Extra.cpp
+             )
 
 include_directories(
+src/main/cpp/mandroid
+#src/main/cpp/Android/libdex
+#src/main/cpp/Android/vm/oo
 src/main/cpp/Android
 
 )

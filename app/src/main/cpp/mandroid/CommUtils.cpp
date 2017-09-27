@@ -105,7 +105,10 @@ int getStrIdx(int search_start_position, char *target_string,int size )
             stringaddress = (int *)(search_start_position + stringdataoff);
             string_num_mutf8 = 0;
             if( readUleb128(stringaddress,(int)&string_num_mutf8) == size && !strncmp((char *)stringaddress + string_num_mutf8,target_string,size) )
+            {
+                LOGD("getStrIdx  target is { %s } ,address is [%x] ",target_string,index);
                 break;
+            }
 
             ++index;
 
@@ -121,10 +124,7 @@ int getStrIdx(int search_start_position, char *target_string,int size )
         index = -1;
 
     }
-
     return index;
-
-
 
 }
 
@@ -158,7 +158,10 @@ signed int  getTypeIdx(int search_start_position, int strIdx)
             next_typeid_to_stringid = *(int *)next_typeIdsOff;
             next_typeIdsOff += 4;
             if ( next_typeid_to_stringid == strIdx )
+            {
+                LOGD("found TypeIdx %x ",strIdx);
                 return result;
+            }
         }
         return -1;
     }
@@ -223,7 +226,9 @@ int  getMethodIdx(int search_start_position, int method_strIdx, int class_typeId
             ++result;
             classIdx += 8;
             if ( result == methodIdsSize )
-            {result = -1;break;}
+            {
+                result = -1;break;
+            }
         }
     }
     else
@@ -275,7 +280,6 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
     instanceFieldsSize = readUleb128(classDataOff_new_start, (int)&Uleb_bytes_read);
     LOGD("instanceFieldsSize= %d",instanceFieldsSize);
 
-
     classDataOff_new_start = (int *)((char *)classDataOff_new_start + Uleb_bytes_read);
     LOGD("instanceFieldsSize_addr= %x",classDataOff_new_start);
 
@@ -289,13 +293,11 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
     virtualMethodSize = readUleb128(classDataOff_new_start, (int)&Uleb_bytes_read);
     LOGD("virtualMethodsSize= %d",virtualMethodSize);
 
-
     after_skipstaticfield_address = skipUleb128(2 * staticFieldsSize, (int *)((char *)classDataOff_new_start + Uleb_bytes_read));
     LOGD("after_skipstaticfield_address = %x",  after_skipstaticfield_address);
 
     DexMethod_start_address = skipUleb128(2 * instanceFieldsSize, after_skipstaticfield_address);
     LOGD("DexMethod_start_address = %x", DexMethod_start_address);
-
 
     result = 0;
     if ( directMethodsSize )
@@ -304,20 +306,18 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
         int DexMethod_methodIdx_tmp = 0;
         do
         {
-
             DexMethod_methodIdx_tmp = 0;
             DexMethod_methodIdx = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
-            DexMethod_methodIdx_tmp = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
+          //  DexMethod_methodIdx_tmp = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
 
 
             LOGD("DexMethod_direct_methodIdx = %x", DexMethod_methodIdx);
-            LOGD("DexMethod_direct_methodIdx_tmp = %x", DexMethod_methodIdx_tmp);
-
-
+           // LOGD("DexMethod_direct_methodIdx_tmp = %x", DexMethod_methodIdx_tmp);
 
             DexMethod_accessFlagsstart_address = (int *)((char *)DexMethod_start_address + Uleb_bytes_read);
             if ( DexMethod_methodIdx == methodIdx )
             {
+                LOGD("***************found directlMethod ");
                 readUleb128(DexMethod_accessFlagsstart_address, (int)&Uleb_bytes_read);
                 return readUleb128((int *)((char *)DexMethod_accessFlagsstart_address + Uleb_bytes_read), (int)&Uleb_bytes_read) +  search_start_position;
             }
@@ -336,14 +336,15 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
         {
             DexMethod_methodIdx_tmp = 0;
             DexMethod_methodIdx = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
-            DexMethod_methodIdx_tmp = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
+//            DexMethod_methodIdx_tmp = readUleb128(DexMethod_start_address, (int)&Uleb_bytes_read);
 
             LOGD("DexMethod_virtual_methodIdx = %x", DexMethod_methodIdx);
-            LOGD("DexMethod_virtual_methodIdx_tmp = %x", DexMethod_methodIdx_tmp);
+//            LOGD("DexMethod_virtual_methodIdx_tmp = %x", DexMethod_methodIdx_tmp);
 
             DexMethod_accessFlagsstart_address = (int *)((char *)DexMethod_start_address + Uleb_bytes_read);
             if ( DexMethod_methodIdx == methodIdx )
             {
+                LOGD("***************found vitualMethod ");
                 readUleb128(DexMethod_accessFlagsstart_address, (int)&Uleb_bytes_read);
                 return readUleb128((int *)((char *)DexMethod_accessFlagsstart_address + Uleb_bytes_read), (int)&Uleb_bytes_read) +  search_start_position;
             }
@@ -380,6 +381,7 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
                     end = (void *) strtoul(s, NULL, 16);
                     LOGD(" startAddress = %x", (unsigned int) start);
                     LOGD(" endAddress = %x", (unsigned int) end);
+                    break;
                 }
             }
         }
@@ -403,10 +405,8 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
     LOGD("string = %s", (char *) search_start_position);
 
     int class_strIdx = 0;
-
      //查找类
-    class_strIdx = getStrIdx(search_start_position, "Lcom/dexapplication/MainActivity;",
-                             strlen("Lcom/dexapplication/MainActivity;"));
+    class_strIdx = getStrIdx(search_start_position, "Lcom/dexapplication/Test;",strlen("Lcom/dexapplication/Test;"));
     LOGD("class_strIdx = %x", class_strIdx);
     int method_strIdx = 0;
 
@@ -436,7 +436,6 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
     codeItem_address = getCodeItem(search_start_position, class_def_item_address, methodIdx);
     LOGD("codeItem_address = %x", codeItem_address);
 
-
     void *code_insns_address;
     code_insns_address = (void *) (codeItem_address + 16);
     LOGD("code_insns_address = %x", code_insns_address);
@@ -444,12 +443,17 @@ int getCodeItem(int search_start_position, int class_def_item_address, int metho
     void *codeinsns_page_address = (void *) (codeItem_address + 16 -
                                              (codeItem_address + 16) % (unsigned int) page_size);
     LOGD("codeinsns_page_address = %x", codeinsns_page_address);
+    if((int* )codeinsns_page_address == 0){
+       LOGD("[+]  codeinsns_page_address is 0 ");
+        return -1;
+    }
+
 
     mprotect(codeinsns_page_address, page_size, 3);
-
     char inject[] = {0x90, 0x00, 0x02, 0x03, 0x0f, 0x00};
-   char ins[] = {0x12, 0x20,0x0f ,0x00};
+   char ins[] = {0x12, 0x20,0x0f ,0x00};//修改ret1 ==>ret2
     memcpy(code_insns_address, &ins, 4);
+    return 0;
 }
 
 
